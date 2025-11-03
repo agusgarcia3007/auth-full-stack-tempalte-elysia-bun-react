@@ -1,0 +1,18 @@
+{
+  "name": "template-elysia-bun",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --filter=* dev",
+    "dev:server": "bun --filter=server dev",
+    "dev:client": "bun --filter=client dev",
+    "build": "bun run --filter=* build",
+    "build:client": "bun --filter=client build",
+    "build:server": "bun --filter=server build"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
