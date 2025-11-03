@@ -11,9 +11,13 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "arkenv": "^0.7.3",
+    "@elysiajs/cookie": "^0.8.0",
+    "@elysiajs/jwt": "^1.4.0",
+    "@elysiajs/openapi": "^1.4.11",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
-    "elysia": "latest"
+    "elysia": "latest",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "bun-types": "latest",
