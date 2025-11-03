@@ -11,6 +11,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "arkenv": "^0.7.3",
     "drizzle-orm": "^0.44.7",
     "elysia": "latest"
   },
