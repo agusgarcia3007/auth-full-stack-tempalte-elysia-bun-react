@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/__admin/")({
+export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
 });
 

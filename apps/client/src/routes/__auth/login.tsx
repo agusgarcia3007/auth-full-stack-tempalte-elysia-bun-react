@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useLogin } from "@/services/auth/mutations";
@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 
 const LoginPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const search = useSearch({ from: "/__auth/login" });
   const { mutate: login, isPending } = useLogin();
 
   const form = useForm<LoginData>({
@@ -26,7 +28,12 @@ const LoginPage = () => {
   });
 
   const onSubmit = (data: LoginData) => {
-    login(data);
+    login(data, {
+      onSuccess: () => {
+        const redirect = (search as { redirect?: string })?.redirect || "/";
+        navigate({ to: redirect });
+      },
+    });
   };
 
   return (

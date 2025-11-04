@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { AuthService, authKeys } from "./service";
 import type { LoginData, SignupData } from "./types";
 import { catchAxiosError } from "@/lib/catch-axios-error";
@@ -11,6 +12,7 @@ export function useSignup() {
     onSuccess: (response) => {
       AuthService.setAccessToken(response.data.accessToken);
       AuthService.setRefreshToken(response.data.refreshToken);
+      queryClient.setQueryData(authKeys.profile(), response);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
     onError: catchAxiosError,
@@ -25,6 +27,7 @@ export function useLogin() {
     onSuccess: (response) => {
       AuthService.setAccessToken(response.data.accessToken);
       AuthService.setRefreshToken(response.data.refreshToken);
+      queryClient.setQueryData(authKeys.profile(), response);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
     onError: catchAxiosError,
@@ -46,6 +49,7 @@ export function useRefresh() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: () => AuthService.logout(),
@@ -53,6 +57,7 @@ export function useLogout() {
       AuthService.removeAccessToken();
       AuthService.removeRefreshToken();
       queryClient.clear();
+      navigate({ to: "/login" });
     },
     onError: catchAxiosError,
   });
