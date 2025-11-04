@@ -45,7 +45,10 @@ export function Header() {
             App
           </Link>
           <nav className="flex gap-4">
-            <Link to="/" className="[&.active]:font-bold hover:text-primary transition-colors">
+            <Link
+              to="/"
+              className="[&.active]:font-bold hover:text-primary transition-colors"
+            >
               {t("navigation.home")}
             </Link>
           </nav>
@@ -55,17 +58,26 @@ export function Header() {
           {auth.isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-10 w-10 rounded-full"
+                >
                   <Avatar>
-                    <AvatarFallback>{getUserInitials(auth.user)}</AvatarFallback>
+                    <AvatarFallback>
+                      {getUserInitials(auth.user)}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{auth.user?.name || t("navigation.account")}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{auth.user?.email}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {auth.user?.name || t("navigation.account")}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {auth.user?.email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -77,7 +89,7 @@ export function Header() {
                 </DropdownMenuItem>
                 {auth.user?.role === "admin" && (
                   <DropdownMenuItem asChild>
-                    <Link to="/__admin" className="cursor-pointer">
+                    <Link to="/admin" className="cursor-pointer">
                       <ShieldCheck className="mr-2 h-4 w-4" />
                       {t("navigation.admin")}
                     </Link>
