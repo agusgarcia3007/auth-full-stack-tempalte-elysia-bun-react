@@ -104,10 +104,10 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost">
                 <Link to="/login">{t("navigation.login")}</Link>
               </Button>
-              <Button asChild>
+              <Button>
                 <Link to="/signup">{t("navigation.signup")}</Link>
               </Button>
             </>
