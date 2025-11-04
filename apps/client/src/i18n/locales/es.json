@@ -1,0 +1,57 @@
+{
+  "common": {
+    "unexpected_error": "Ocurrió un error inesperado"
+  },
+  "errors": {
+    "AUTH_INVALID_CREDENTIALS": "Correo o contraseña inválidos",
+    "AUTH_USER_ALREADY_EXISTS": "Ya existe un usuario con este correo",
+    "AUTH_NO_TOKEN": "No se proporcionó token de autenticación",
+    "AUTH_INVALID_TOKEN": "Token inválido o mal formado",
+    "AUTH_TOKEN_EXPIRED": "El token ha expirado",
+    "AUTH_NO_REFRESH_TOKEN": "No se proporcionó token de actualización",
+    "AUTH_INVALID_REFRESH_TOKEN": "Token de actualización inválido",
+    "AUTH_REFRESH_TOKEN_REVOKED": "El token de actualización ha sido revocado",
+    "AUTH_USER_NOT_FOUND": "Usuario no encontrado",
+    "AUTH_UNAUTHORIZED": "Acceso no autorizado",
+    "AUTH_FORBIDDEN": "Prohibido: permisos insuficientes"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "profile": "Perfil",
+    "admin": "Administración",
+    "logout": "Cerrar Sesión",
+    "account": "Mi Cuenta"
+  },
+  "profile": {
+    "user_information": "Información del Usuario",
+    "description": "Ver detalles de tu cuenta",
+    "role": "Rol"
+  },
+  "admin": {
+    "users": "Usuarios",
+    "users_description": "Gestionar usuarios del sistema",
+    "activity": "Actividad",
+    "activity_description": "Actividad reciente del sistema",
+    "settings": "Configuración",
+    "settings_description": "Configuración del sistema"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar Sesión",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "submit": "Iniciar Sesión",
+      "signup_link": "¿No tienes cuenta? Regístrate"
+    },
+    "signup": {
+      "title": "Registro",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "name": "Nombre",
+      "submit": "Registrarse",
+      "login_link": "¿Ya tienes cuenta? Inicia sesión"
+    }
+  }
+}

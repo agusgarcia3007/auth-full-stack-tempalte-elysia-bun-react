@@ -1,0 +1,57 @@
+{
+  "common": {
+    "unexpected_error": "An unexpected error occurred"
+  },
+  "errors": {
+    "AUTH_INVALID_CREDENTIALS": "Invalid email or password",
+    "AUTH_USER_ALREADY_EXISTS": "A user with this email already exists",
+    "AUTH_NO_TOKEN": "No authentication token provided",
+    "AUTH_INVALID_TOKEN": "Invalid or malformed token",
+    "AUTH_TOKEN_EXPIRED": "Token has expired",
+    "AUTH_NO_REFRESH_TOKEN": "No refresh token provided",
+    "AUTH_INVALID_REFRESH_TOKEN": "Invalid refresh token",
+    "AUTH_REFRESH_TOKEN_REVOKED": "Refresh token has been revoked",
+    "AUTH_USER_NOT_FOUND": "User not found",
+    "AUTH_UNAUTHORIZED": "Unauthorized access",
+    "AUTH_FORBIDDEN": "Forbidden: insufficient permissions"
+  },
+  "navigation": {
+    "home": "Home",
+    "login": "Sign In",
+    "signup": "Sign Up",
+    "profile": "Profile",
+    "admin": "Admin",
+    "logout": "Logout",
+    "account": "My Account"
+  },
+  "profile": {
+    "user_information": "User Information",
+    "description": "View your account details",
+    "role": "Role"
+  },
+  "admin": {
+    "users": "Users",
+    "users_description": "Manage system users",
+    "activity": "Activity",
+    "activity_description": "Recent system activity",
+    "settings": "Settings",
+    "settings_description": "System configuration"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "signup_link": "Don't have an account? Sign up"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "email": "Email",
+      "password": "Password",
+      "name": "Name",
+      "submit": "Sign Up",
+      "login_link": "Already have an account? Sign in"
+    }
+  }
+}

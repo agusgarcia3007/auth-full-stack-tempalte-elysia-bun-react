@@ -5,13 +5,11 @@ import {
   generateAuthTokens,
   hashPassword,
   revokeRefreshToken,
-  setRefreshTokenCookie,
   storeRefreshToken,
   verifyPassword,
 } from "@/lib/auth";
 import { constants } from "@/lib/constants";
 import { ErrorCodes, createErrorResponse } from "@/lib/error-codes";
-import { cookie } from "@elysiajs/cookie";
 import { jwt } from "@elysiajs/jwt";
 import { Elysia, t } from "elysia";
 
@@ -19,22 +17,21 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 const { REFRESH_TOKEN_EXP, ACCESS_TOKEN_EXP } = constants;
 
-export const authRoutes = new Elysia({ prefix: "/auth" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: JWT_SECRET,
-    })
-  )
-  .use(cookie())
+export const authRoutes = new Elysia({ prefix: "/auth" }).use(
+  jwt({
+    name: "jwt",
+    secret: JWT_SECRET,
+  })
+)
 
   .post(
     "/signup",
-    async ({ body, jwt, cookie: { refreshToken } }) => {
+    async ({ body, jwt, set }) => {
       const { email, password, name } = body;
 
       const existingUser = await findUserByEmail(email);
       if (existingUser) {
+        set.status = 409;
         return createErrorResponse(ErrorCodes.AUTH_USER_ALREADY_EXISTS);
       }
 
@@ -52,12 +49,6 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         new Date(Date.now() + REFRESH_TOKEN_EXP * 1000)
       );
 
-      await setRefreshTokenCookie(
-        refreshToken,
-        refreshTokenValue,
-        process.env.NODE_ENV === "production"
-      );
-
       return {
         success: true,
         data: {
@@ -68,6 +59,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
             role: user.role,
           },
           accessToken,
+          refreshToken: refreshTokenValue,
         },
       };
     },
@@ -82,16 +74,18 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
   .post(
     "/login",
-    async ({ body, jwt, cookie: { refreshToken } }) => {
+    async ({ body, jwt, set }) => {
       const { email, password } = body;
 
       const user = await findUserByEmail(email);
       if (!user) {
+        set.status = 400;
         return createErrorResponse(ErrorCodes.AUTH_INVALID_CREDENTIALS);
       }
 
       const isValid = await verifyPassword(password, user.passwordHash);
       if (!isValid) {
+        set.status = 400;
         return createErrorResponse(ErrorCodes.AUTH_INVALID_CREDENTIALS);
       }
 
@@ -107,12 +101,6 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         new Date(Date.now() + REFRESH_TOKEN_EXP * 1000)
       );
 
-      await setRefreshTokenCookie(
-        refreshToken,
-        refreshTokenValue,
-        process.env.NODE_ENV === "production"
-      );
-
       return {
         success: true,
         data: {
@@ -123,6 +111,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
             role: user.role,
           },
           accessToken,
+          refreshToken: refreshTokenValue,
         },
       };
     },
@@ -134,61 +123,60 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }
   )
 
-  .post("/refresh", async ({ cookie: { refreshToken }, jwt }) => {
-    const tokenValue = refreshToken.value;
-    if (!tokenValue || typeof tokenValue !== "string") {
-      return createErrorResponse(ErrorCodes.AUTH_NO_REFRESH_TOKEN);
+  .post(
+    "/refresh",
+    async ({ headers, jwt, set }) => {
+      const authHeader = headers["x-refresh-token"];
+      if (!authHeader || typeof authHeader !== "string") {
+        set.status = 401;
+        return createErrorResponse(ErrorCodes.AUTH_NO_REFRESH_TOKEN);
+      }
+
+      const payload = await jwt.verify(authHeader);
+      if (!payload || payload.type !== "refresh") {
+        set.status = 401;
+        return createErrorResponse(ErrorCodes.AUTH_INVALID_REFRESH_TOKEN);
+      }
+
+      const email = payload.email as string;
+      const tokenHash = await hashPassword(authHeader);
+
+      const [storedToken, user] = await Promise.all([
+        findRefreshToken(tokenHash),
+        findUserByEmail(email),
+      ]);
+
+      if (!storedToken || storedToken.revokedAt) {
+        set.status = 401;
+        return createErrorResponse(ErrorCodes.AUTH_REFRESH_TOKEN_REVOKED);
+      }
+      if (!user) {
+        set.status = 404;
+        return createErrorResponse(ErrorCodes.AUTH_USER_NOT_FOUND);
+      }
+
+      const accessToken = await jwt.sign({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
+      });
+
+      return {
+        success: true,
+        data: {
+          accessToken,
+        },
+      };
     }
+  )
 
-    const payload = await jwt.verify(tokenValue);
-    if (!payload || payload.type !== "refresh") {
-      return createErrorResponse(ErrorCodes.AUTH_INVALID_REFRESH_TOKEN);
-    }
-
-    const email = payload.email as string;
-    const tokenHash = await hashPassword(tokenValue);
-
-    const [storedToken, user] = await Promise.all([
-      findRefreshToken(tokenHash),
-      findUserByEmail(email),
-    ]);
-
-    if (!storedToken || storedToken.revokedAt) {
-      return createErrorResponse(ErrorCodes.AUTH_REFRESH_TOKEN_REVOKED);
-    }
-    if (!user) {
-      return createErrorResponse(ErrorCodes.AUTH_USER_NOT_FOUND);
-    }
-
-    const accessToken = await jwt.sign({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
-    });
-
-    return {
-      success: true,
-      data: {
-        accessToken,
-      },
-    };
-  })
-
-  .post("/logout", async ({ cookie: { refreshToken } }) => {
-    if (refreshToken.value && typeof refreshToken.value === "string") {
-      const tokenHash = await hashPassword(refreshToken.value);
+  .post("/logout", async ({ headers }) => {
+    const authHeader = headers["x-refresh-token"];
+    if (authHeader && typeof authHeader === "string") {
+      const tokenHash = await hashPassword(authHeader);
       await revokeRefreshToken(tokenHash);
     }
-
-    refreshToken.value = "";
-    refreshToken.set({
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 0,
-      path: "/",
-    });
 
     return {
       success: true,
