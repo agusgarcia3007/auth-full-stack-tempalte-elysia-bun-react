@@ -1,4 +1,4 @@
-import { StrictMode, useMemo } from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,16 +13,18 @@ import "./i18n/config";
 import { routeTree } from "./routeTree.gen";
 import { Toaster } from "./components/ui/sonner";
 import { AuthService } from "./services/auth/service";
-import type { User } from "./services/auth/types";
 import type { RouterContext } from "./routes/__root";
+
+const token = AuthService.getAccessToken();
+const user = AuthService.getUser();
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
   context: {
     auth: {
-      isAuthenticated: false,
-      user: null,
+      isAuthenticated: !!token,
+      user,
     },
   } satisfies RouterContext,
 });
@@ -44,23 +46,6 @@ const queryClient = new QueryClient({
   },
 });
 
-function InnerApp() {
-  const auth = useMemo(() => {
-    const token = AuthService.getAccessToken();
-    const isAuthenticated = !!token;
-
-    // Try to get user from profile query cache
-    const userCache = queryClient.getQueryData<{ success: boolean; data: { user: User } }>(["auth", "profile"]);
-
-    return {
-      isAuthenticated,
-      user: userCache?.data?.user || null,
-    };
-  }, []);
-
-  return <RouterProvider router={router} context={{ auth }} />;
-}
-
 // Render the app
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
@@ -68,7 +53,7 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <InnerApp />
+        <RouterProvider router={router} />
         <Toaster />
       </QueryClientProvider>
     </StrictMode>

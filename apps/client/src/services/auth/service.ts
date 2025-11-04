@@ -80,4 +80,22 @@ export class AuthService {
   public static getRefreshToken(): string | null {
     return localStorage.getItem("refreshToken");
   }
+
+  public static setUser(user: { id: string; email: string; name: string | null; role: string }): void {
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+
+  public static removeUser(): void {
+    localStorage.removeItem("user");
+  }
+
+  public static getUser(): { id: string; email: string; name: string | null; role: string } | null {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
+  }
 }

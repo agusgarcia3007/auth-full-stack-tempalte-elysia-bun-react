@@ -12,6 +12,7 @@ export function useSignup() {
     onSuccess: (response) => {
       AuthService.setAccessToken(response.data.accessToken);
       AuthService.setRefreshToken(response.data.refreshToken);
+      AuthService.setUser(response.data.user);
       queryClient.setQueryData(authKeys.profile(), response);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
@@ -27,6 +28,7 @@ export function useLogin() {
     onSuccess: (response) => {
       AuthService.setAccessToken(response.data.accessToken);
       AuthService.setRefreshToken(response.data.refreshToken);
+      AuthService.setUser(response.data.user);
       queryClient.setQueryData(authKeys.profile(), response);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
@@ -56,6 +58,7 @@ export function useLogout() {
     onSuccess: () => {
       AuthService.removeAccessToken();
       AuthService.removeRefreshToken();
+      AuthService.removeUser();
       queryClient.clear();
       navigate({ to: "/login" });
     },
