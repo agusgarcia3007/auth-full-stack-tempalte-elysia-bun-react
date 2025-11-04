@@ -1,9 +1,9 @@
 import { db, schema } from "../db";
 import { eq } from "drizzle-orm";
+import { constants } from "./constants";
 
-/**
- * Hash a password using Bun's native Argon2id
- */
+const { REFRESH_TOKEN_EXP, ACCESS_TOKEN_EXP } = constants;
+
 export async function hashPassword(password: string): Promise<string> {
   return Bun.password.hash(password, {
     algorithm: "argon2id",
@@ -12,15 +12,46 @@ export async function hashPassword(password: string): Promise<string> {
   });
 }
 
-/**
- * Verify a password against a hash
- * Automatically detects algorithm (argon2id or bcrypt)
- */
 export async function verifyPassword(
   password: string,
   hash: string
 ): Promise<boolean> {
   return Bun.password.verify(password, hash);
+}
+
+export async function generateAuthTokens(
+  jwt: any,
+  user: { id: string; email: string; role: string }
+) {
+  return Promise.all([
+    jwt.sign({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      exp: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_EXP,
+    }),
+    jwt.sign({
+      userId: user.id,
+      email: user.email,
+      type: "refresh",
+      exp: Math.floor(Date.now() / 1000) + REFRESH_TOKEN_EXP,
+    }),
+  ]);
+}
+
+export async function setRefreshTokenCookie(
+  refreshToken: any,
+  tokenValue: string,
+  isProduction: boolean
+) {
+  refreshToken.value = tokenValue;
+  refreshToken.set({
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "strict" as const,
+    maxAge: REFRESH_TOKEN_EXP,
+    path: "/",
+  });
 }
 
 /**

@@ -4,7 +4,13 @@ import { authRoutes } from "./routes/auth";
 import openapi from "@elysiajs/openapi";
 
 const app = new Elysia()
-  .get("/", () => "Hello Elysia")
+  .get("/", () => {
+    return {
+      status: "OK",
+      message: "Elysia server is running!",
+      timestamp: Date.now().toLocaleString(),
+    };
+  })
   .use(openapi())
   .use(authRoutes)
   .listen(process.env.PORT!);
